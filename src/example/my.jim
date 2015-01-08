@@ -1,0 +1,71 @@
+###
+## 定义的结构体之间不需要按照调用顺序，可以随意
+###
+
+
+####
+## 定义 Fruit 类型
+##
+## 1. 只能写在一行内，不能是多行.
+###
+type Fruit  [apple, pear, orange, banana]
+
+## 定义 Word 类型
+type Word   <String> (min: 4, max: 10)
+
+
+####
+##
+## 定义 User 类型
+##
+## 1. 要以 `struct XX {` 开头，并要独占一行;
+## 2. 同时还要以 `}` 结尾，也要独占一行.
+##
+###
+struct User {
+  firstName:  <FirstName> (gender: @Self.gender)            # 根据自己生成的性别(gender) 来生成 firstName
+  lastName:   <LastName>
+  fullName:   @Self.firstName @MiddleName @Self.lastName    # 组装成字符串，调用了自己的 firstName 和 lastName，并调用新类型 MiddleName
+  age:        @Integer(min: 20, max: 30)                    # 随机生成一个大于等于20，小于等于30的整数
+  email:      <Email>
+  gender:     <Gender> (lang: en)
+  favNumber:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]                # 随机从数组中取一个值，返回的是数字，而不是字符串，如果要生成字符串，要加上引号
+  favFruit:   <Fruit>
+  upperCase:  @Word.upper
+  combo:      AAA{@Word.lower}BBB
+  hello:      Hello @Username, my name is {@Self.fullName}  # 组装成字符串，并调用了它自己的 fullName
+}
+
+
+## 生成一个包含两个用户的数组
+@User.repeat(2)
+
+
+#[Router: baseUrl=http://api.backend.com]
+#GET /users
+#{
+#  status: ok
+#  total:  @Int(min: 20, max: 40)
+#  list:   @User.repeat(10)
+#}
+
+
+#GET /user/{\d+}
+#{
+#  status: ok
+#  data:   @User
+#}
+
+
+#POST /user    # Create
+#{
+#  status: ok
+#}
+
+
+#PUT /user     # Update
+#{
+#  status: ok
+#}
+
+

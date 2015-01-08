@@ -1,0 +1,29 @@
+{
+  "name": "jim",
+  "version": "0.0.0",
+  "description": "Json Interface Meta",
+  "main": "src/jim.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/qiu8310/jim"
+  },
+  "keywords": [
+    "json",
+    "interface",
+    "meta",
+    "frontend",
+    "backend"
+  ],
+  "author": "Zhonglei Qiu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/qiu8310/jim/issues"
+  },
+  "homepage": "https://github.com/qiu8310/jim",
+  "dependencies": {
+    "lodash": "^2.4.1"
+  }
+}
