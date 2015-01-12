@@ -6,6 +6,9 @@
   "scripts": {
     "test": "grunt test"
   },
+  "bin": {
+    "jim": "src/jim.js"
+  },
   "repository": {
     "type": "git",
     "url": "http://github.com/qiu8310/jim"
@@ -24,6 +27,8 @@
   },
   "homepage": "https://github.com/qiu8310/jim",
   "dependencies": {
-    "lodash": "^2.4.1"
+    "commander": "~2.5.0",
+    "lodash": "^2.4.1",
+    "moment": "^2.9.0"
   }
 }

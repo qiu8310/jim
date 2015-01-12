@@ -7,7 +7,6 @@ var H = require('../src/lib/helper'),
 
 describe('Helper test suit', function() {
 
-
   describe('Helper.format(str, args...)', function() {
     var str = 'are you ok, %s';
     it('不提供 args 时原样输入原字符串', function() {
@@ -80,6 +79,10 @@ describe('Helper test suit', function() {
       expect(parsedNoArgs.length).toBe(0);
     });
 
+    it('解析空数组及空对象', function() {
+      expect(H.parseStrToArgs('{}, []')).toEqual([{}, []]);
+    });
+
     it('解析多个基本类型', function() {
       expect(H.parseStrToArgs("123, '34', trUe, 'false'")).toEqual([123, '34', true, 'false']);
     });
@@ -97,8 +100,8 @@ describe('Helper test suit', function() {
     });
 
     it('解析特殊字符串', function() {
-      expect(H.parseStrToArgs(',,')).toEqual([null, null, null]);
-      expect(H.parseStrToArgs('{ }, "{}", ')).toEqual([{}, '{}', null]);
+      expect(H.parseStrToArgs(',,')).toEqual(['', '', '']);
+      expect(H.parseStrToArgs('{ }, "{}", ')).toEqual([{}, '{}', '']);
     });
   });
 });

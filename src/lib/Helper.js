@@ -1,8 +1,9 @@
 
 var _ = require('lodash'),
-  C = require('../config'),
   Helper;
 
+var regEmptyBraces = /^\{\s*\}$/,
+  regEmptySquareBrackets = /^\[\s*\]$/;
 
 var _probArray = _.shuffle(_.range(100)),
   _probSample = function() { return _.sample(_probArray); };
@@ -36,6 +37,7 @@ function format(str, args) {
     return args.length ? args.shift() : raw;
   });
 }
+
 
 
 
@@ -106,6 +108,31 @@ Helper = {
    */
   format: format,
 
+
+  /**
+   * 执行 JavaScript 的调用
+   *
+   * foo.toString.toLowerCase.split(' ')
+   *
+   * 首先把 key 当作函数，如果不存在则再当作属性
+   *
+   * 返回的是一个对象，里面有个 result 字段，如果执行失败返回 false
+   */
+  callNativeJs: function (ref, key, args) {
+    if (_.isUndefined(ref) || _.isNaN(ref) || _.isNull(ref)) {
+      return false;
+    }
+    if (!_.isUndefined(ref[key])) {
+      if (_.isFunction(ref[key])) {
+        return {result: ref[key].apply(ref, args)};
+      } else {
+        return {result: ref[key]};
+      }
+    }
+    return false;
+  },
+
+
   /**
    * 判断 str 在首尾是否分别是 start 和 end
    *
@@ -170,16 +197,22 @@ Helper = {
   /**
    * 将一些简单的字符串解析成 JavaScript 基本类型
    *
+   * 支持空数组（[]）及空对像（{}）
+   *
    * "'abc'"  => 'abc'
    * "12"     => 12
    * "false"  => false
    * "'false'"  => 'false'
    * "12.345"   => 12.345
+   * "[]"       => []
+   * "'abc', 'def', 'xxx'"  => NOTE 不要把它错误解析成字符串了
    */
-  parseStrToPrimitiveJsType: function(str) {
-    if (str === '') {
-      return str;
-    }
+  parseStrToLiteralValue: function(str) {
+    if (str === '') { return str; }
+
+    if (regEmptyBraces.test(str)) { return {}; }
+
+    if (regEmptySquareBrackets.test(str)) { return []; }
 
     // 保留的关键字，大小写不敏感
     var keywords = {
@@ -192,7 +225,11 @@ Helper = {
 
     // 有引号，则一定是个字符串
     if (Helper.isWrapInQuote(str)) {
-      return Helper.unquote(str);
+      var c = str.charAt(0), t = Helper.unquote(str);
+      if (t.indexOf(c) === -1) {
+        return t;
+      }
+
     } else if (key in keywords) {
       return keywords[key];
     } else {
@@ -215,7 +252,7 @@ Helper = {
    */
   parseStrToArray: function(str) {
     if (Helper.isWrapInSquareBrackets(str)) {
-      str = str.substr(1, str.length - 1);
+      str = str.substr(1, str.length - 2);
     }
     return Helper.parseStrToArgs(str);
   },
@@ -227,8 +264,8 @@ Helper = {
    * "123, '34', true, 'false'"              =>  [123, '34', true, 'false']
    * ""               => []
    * "a: 123, '34'"   => [{a: 123}, '34']
-   * ",,"             => [null, null, null]
-   * "{ }, '{}',       => [{}, '{}', null]
+   * ",,"             => ['','','']
+   * "{ }, '{}',       => [{}, '{}', '']
    */
   parseStrToArgs: function(str) {
     var result = [];
@@ -237,13 +274,13 @@ Helper = {
 
     if (!str) { return result; }
 
-    var primitive = Helper.parseStrToPrimitiveJsType(str);
-    if (primitive !== str) { // 不相当表明基本类型解析成功，则不用继续解析
-      result.push(primitive);
+    var literal = Helper.parseStrToLiteralValue(str);
+    if (literal !== str) { // 不相当表明基本类型解析成功，则不用继续解析
+      result.push(literal);
       return result;
     }
 
-    var isObjectParts = [], regEmptyBraces = /^\{\s*\}$/, parsedObj = {},
+    var isObjectParts = [], parsedObj = {},
       list = replaceStrInQuote(str).split(',').map( function(part) { return part.trim(); });
 
     // 初始化 isPartsObject
@@ -252,9 +289,7 @@ Helper = {
     });
 
     _.each(list, function(item, index) {
-
-      if (item === '') { result.push(null) }
-      else if (regEmptyBraces.test(item)) { result.push({}); }
+      if (item === '') { result.push('') }
       else {
 
         var isObjectPart = isObjectParts[index],
@@ -264,9 +299,9 @@ Helper = {
         if (isObjectPart) {
           arg = item.split(':');
           key = Helper.unquote(recoverStrInQuote(arg.shift().trim()));
-          val = Helper.parseStrToPrimitiveJsType(recoverStrInQuote(arg.join(':').trim()));
+          val = Helper.parseStrToLiteralValue(recoverStrInQuote(arg.join(':').trim()));
         } else {
-          arg = Helper.parseStrToPrimitiveJsType(recoverStrInQuote(item));
+          arg = Helper.parseStrToLiteralValue(recoverStrInQuote(item));
         }
 
         if (isObjectPart) {
@@ -287,13 +322,6 @@ Helper = {
   }
 
 };
-
-
-
-//var r = Helper.parseStrToArgs("a: 123, b: '34', c: true, d: 'false', {}, ");
-//
-//console.log(r);
-
 
 
 

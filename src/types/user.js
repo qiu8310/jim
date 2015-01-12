@@ -1,4 +1,4 @@
-var JIM = require('../lib/core'),
+var JIM = require('../lib/Core'),
   _ = require('lodash'),
   C = require('../config');
 

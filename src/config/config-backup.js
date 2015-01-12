@@ -1,16 +1,4 @@
 module.exports = {
-  defaultRepeatMin: 0,
-  defaultRepeatMax: 10,
-
-  defaultStringMin: 4,
-  defaultStringMax: 16,
-
-  defaultLoremMin: 10,
-  defaultLoremMax: 30,
-
-  defaultIntegerMin: -1,
-  defaultIntegerMax: 10000,
-
 
   rootDomains: ['com', 'org', 'edu', 'gov', 'co.uk', 'net', 'io', 'me'],
   
