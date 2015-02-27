@@ -11,6 +11,10 @@ module.exports = {
   alias: {},
   type: {
     /**
+     *
+     * Unicode 字符集： http://en.wikibooks.org/wiki/Unicode/Character_reference/0000-0FFF
+     *
+     *
      * 00000000-0000007F的字符(0-127)，       用单个字节表示，二进制模板：0xxxxxxx
      * 00000080-000007FF的字符(128-32767)，   用两个字节表示，二进制模板：110xxxxx 10xxxxxx
      * 00000800-0000FFFF的字符(32768-65535)， 用三个字节表示，二进制模板：1110xxxx 10xxxxxx 10xxxxxx

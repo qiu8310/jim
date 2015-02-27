@@ -1,0 +1,44 @@
+jim {
+  locale: zh
+}
+
+# 会覆盖后台默认的
+enum Gender {
+  男 0.6  # 0.6 的概率是男
+  女
+}
+
+#
+# Empty => empty string
+# Null  => null
+
+# pluralize a word: https://github.com/blakeembrey/pluralize
+
+struct User {
+  age:        <Integer>       range: 0-
+  email:      <Email>         suffix: @liulishuo.com
+  gender:     <Gender>
+  phone:      <Telephone>     regexp: /+86 1\d{10}/
+  favFruits:  <Words>         repeat: 1-8             # 后面加了 s ，返回一个数组，数组带有属性  repeat
+  registerAt: <Date>          format: 'yyyy-mm-dd HH:ii:ss'
+  ext:        <Custom>        [optional] values: a b c 'd d'
+}
+
+
+if ( $query == allUser ) {
+  0.9 {
+    data: @User.repeat(6, 10)  # 这里也可以直接用 @Users ，这样的话会使用默认的 repeat(0, 10)
+    status: ok
+  }
+  or {
+    data: @Null
+    status: not ok
+  }
+} else if ($query == singleUser {
+  {
+    data: @User,
+    status: ok
+  }
+} else {
+  @Integer.option(range: 0-10).repeat(3)  # => [2,5,0]
+}

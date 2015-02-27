@@ -52,6 +52,6 @@ http.createServer(function(req, res) {
   res.end(JSON.stringify(json));
 
 
-}).listen(port);
+}).listen(port, '0.0.0.0');
 
 console.log('Server is listening ' + port);
